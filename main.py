@@ -39,11 +39,10 @@ def boardcast():
     if fresh == None:
         return
     for x in fresh:
-
-        try:
-            result = client.lrange('dcard', 0, -1)
-            post_id = x['id']
-            if str(post_id).encode() not in result:
+        result = client.lrange('dcard', 0, -1)
+        post_id = x['id']
+        if str(post_id).encode() not in result:
+            try:
                 body = x['excerpt']
                 captions = f'<a href="https://www.dcard.tw/f/sex/p/{post_id}">{escape(x["title"])}</a>\n' \
                            f'#{post_id}\n' \
@@ -72,14 +71,14 @@ def boardcast():
                 else:
                     bot.send_message(
                         channel_id, captions, parse_mode='html', disable_web_page_preview=True)
-        except telegram.error.TimedOut:
-            sleep(120)
-        except Exception as e:
-            # raise
-            bot.send_message(tdc, str(e))
-        else:
-            # pass
-            client.lpush('dcard', post_id)
+            except telegram.error.TimedOut:
+                sleep(120)
+            except Exception as e:
+                # raise
+                bot.send_message(tdc, str(e))
+            else:
+                # pass
+                client.lpush('dcard', post_id)
 
 
 while True:
