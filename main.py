@@ -37,7 +37,7 @@ def boardcast():
     body(text)
     '''
     fresh = fetch()
-    if fresh == None:
+    if fresh == False:
         return
     for x in fresh:
         result = client.lrange('dcard', 0, -1)
