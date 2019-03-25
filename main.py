@@ -83,6 +83,7 @@ def boardcast():
             else:
                 # pass
                 client.lpush('dcard', post_id)
+            sleep(10)
 
 
 while True:
