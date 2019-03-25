@@ -6,6 +6,7 @@ import redis
 import requests
 import telegram
 import telegram.error
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 bot = telegram.Bot(os.environ.get(
     'token', None))
@@ -44,9 +45,12 @@ def boardcast():
         if str(post_id).encode() not in result:
             try:
                 body = x['excerpt']
-                captions = f'<a href="https://www.dcard.tw/f/sex/p/{post_id}">{escape(x["title"])}</a>\n' \
+                captions = f'<b>{escape(x["title"])}</b>\n' \
                            f'#{post_id}\n' \
                            f'{escape(body)}\n'
+                keyboard = InlineKeyboardMarkup([[InlineKeyboardButton(
+                    '前往原始文章', url=f'https://www.dcard.tw/f/sex/p/{post_id}')]])
+
                 if x['media']:
                     if len(x['media']) >= 2:
                         # telegram.InputMediaPhoto
@@ -63,19 +67,19 @@ def boardcast():
                         for y in send_list:
                             send = bot.send_media_group(channel_id, y)
                         bot.send_message(
-                            channel_id, captions, parse_mode='html', disable_web_page_preview=True, reply_to_message_id=send[-1].message_id)
+                            channel_id, captions, parse_mode='html', disable_web_page_preview=True, reply_to_message_id=send[-1].message_id, reply_markup=keyboard)
 
                     else:
                         bot.send_photo(channel_id, x['media'][0]['url'], caption=captions,
-                                       parse_mode='html', disable_web_page_preview=True)
+                                       parse_mode='html', disable_web_page_preview=True, reply_markup=keyboard)
                 else:
                     bot.send_message(
-                        channel_id, captions, parse_mode='html', disable_web_page_preview=True)
+                        channel_id, captions, parse_mode='html', disable_web_page_preview=True, reply_markup=keyboard)
             except telegram.error.TimedOut:
                 sleep(120)
             except Exception as e:
                 # raise
-                bot.send_message(tdc, str(e))
+                bot.send_message(tdc, str(e), reply_markup=keyboard)
             else:
                 # pass
                 client.lpush('dcard', post_id)
